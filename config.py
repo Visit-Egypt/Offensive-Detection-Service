@@ -10,7 +10,8 @@ config = Config(".env", os.environ)
 DEBUG: bool = config("DEBUG", cast=bool, default=True)
 
 API_PREFIX = "/api"
-MODEL_URL: str = config("MODEL_URL", cast=str, default="")
+MODEL1_URL: str = config("MODEL1_URL", cast=str, default="")
+MODEL2_URL: str = config("MODEL2_URL", cast=str, default="")
 
 # logging configuration
 LOGGING_LEVEL = logging.DEBUG if DEBUG else logging.INFO

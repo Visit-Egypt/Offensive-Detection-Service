@@ -1,10 +1,9 @@
-from cmath import log
+from readline import parse_and_bind
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 from loguru import logger
 from starlette.exceptions import HTTPException
 from starlette.middleware.cors import CORSMiddleware
-
 from downloadmodel import download_and_save_offensive_model
 
 from config import (
@@ -16,18 +15,10 @@ from errors.validation_error import (
     http422_error_handler,
 )
 
-from chatbot import router
+from offensive import router
 
-async def downloading_offensive_model() -> bool:
-    logger.info("Downloading Offensive Detector Model ........")
-    try:
 
-        result = await download_and_save_offensive_model()
-        if result:
-            logger.info("Model Has Been Downloaded and Saved ...")
-            return True
-    except Exception as e:
-        logger.exception(e.__str__)
+
 
 def get_application() -> FastAPI:
     application = FastAPI(title="Offensive Detector Service", debug=DEBUG)
@@ -40,7 +31,6 @@ def get_application() -> FastAPI:
         allow_headers=["*"],
     )
 
-    application.add_event_handler("startup", downloading_offensive_model)
     application.add_exception_handler(HTTPException, http_error_handler)
     application.add_exception_handler(RequestValidationError, http422_error_handler)
 
