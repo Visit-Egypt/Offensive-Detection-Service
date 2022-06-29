@@ -1,0 +1,75 @@
+name: Offensive Detector Service
+on: [push]
+
+jobs:
+  test:
+    name: Run Python Tests
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - uses: actions/checkout@v2
+
+    - name: Setup timezone
+      uses: zcong1993/setup-timezone@master
+      with:
+        timezone: UTC
+
+    - name: Set up Python 3.10.2
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.10.2
+
+    - name: Install Python dependencies
+      run: |
+        sudo apt install -y $(grep -o ^[^#][[:alnum:]-]* "packages.list")
+        python3 -m pip install --upgrade pip
+        pip3 install -r requirements.txt
+        # python -m spacy download en_core_web_sm
+        # python -m spacy download en
+        
+    - name: Test with pytest
+      run: |
+        echo "Testing Placeholder"
+  BuildDocker:
+    needs: [test]
+    if: github.ref == 'refs/heads/master' 
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      -
+        name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      -
+        name: Build and push
+        uses: docker/build-push-action@v3
+        with:
+          push: true
+          tags: visitegypt/offensive:latest
+
+  DeployToServer:
+    needs: [test, BuildDocker]
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy docker container to the erver
+        uses: fifsky/ssh-action@master
+        env:
+          MODEL_URL: ${{ secrets.MODEL_URL }}
+        with:
+          command: |
+            echo "MODEL_URL=${{ env.MODEL_URL }}" >> $HOME/.env
+            sudo docker kill offensive-container
+            sudo docker rm offensive-container
+            sudo docker run -d -p 80:80 --env-file $HOME/.env --name offensive-container visitegypt/offensive:latest
+          host: ${{ secrets.HOST }}
+          user: ${{ secrets.HOST_USERNAME }}
+          key: ${{ secrets.PRIVATE_KEY}}
