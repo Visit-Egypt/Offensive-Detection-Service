@@ -63,10 +63,12 @@ jobs:
       - name: Deploy docker container to the erver
         uses: fifsky/ssh-action@master
         env:
-          MODEL_URL: ${{ secrets.MODEL_URL }}
+          MODEL1_URL: ${{ secrets.MODEL1_URL }}
+          MODEL2_URL: ${{ secrets.MODEL2_URL }}
         with:
           command: |
-            echo "MODEL_URL=${{ env.MODEL_URL }}" >> $HOME/.env
+            echo "MODEL1_URL=${{ env.MODEL1_URL }}" >> $HOME/.env
+            echo "MODEL2_URL=${{ env.MODEL2_URL }}" >> $HOME/.env
             sudo docker kill offensive-container
             sudo docker rm offensive-container
             sudo docker run -d -p 80:80 --env-file $HOME/.env --name offensive-container visitegypt/offensive:latest
