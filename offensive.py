@@ -57,7 +57,9 @@ class isOffensive(BaseModel):
 nltk.download('stopwords')
 sn = SnowballStemmer(language='english')
 
-classifier, word_vectorizer = None, None
+data = {}
+
+
 
 @router.on_event("startup")
 async def downloading_offensive_model() -> bool:
@@ -72,10 +74,14 @@ async def downloading_offensive_model() -> bool:
         logger.exception(e.__str__)
 
 
+
 @router.on_event("startup")
 def load_model():
-    classifier = joblib.load('classifier2_jlib')
-    word_vectorizer = joblib.load('vectroize2_jlib')
+    logger.info("Loading Models to Memory ....")
+    data[0] = joblib.load('classifier2_jlib')
+    data[1] = joblib.load('vectroize2_jlib')
+    logger.info("Models have been loaded ...")
+    return data
 
 
 
@@ -118,6 +124,7 @@ def stemmer(text):
 
 @router.post('/predict', response_model = isOffensive )
 def make_test_predictions(comment: Data):
+    classifier, word_vectorizer = data[0], data[1]
     df = {'id':comment.id,'comment_text':comment.comment_txt}
     df =  pd.DataFrame(df,index =[0])
     df.comment_text = df.comment_text.apply(clean_text)

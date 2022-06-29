@@ -4,7 +4,6 @@ from fastapi.exceptions import RequestValidationError
 from loguru import logger
 from starlette.exceptions import HTTPException
 from starlette.middleware.cors import CORSMiddleware
-from downloadmodel import download_and_save_offensive_model
 
 from config import (
     API_PREFIX,
@@ -16,8 +15,6 @@ from errors.validation_error import (
 )
 
 from offensive import router
-
-
 
 
 def get_application() -> FastAPI:
