@@ -71,7 +71,8 @@ async def downloading_offensive_model() -> bool:
             logger.info("Model Has Been Downloaded and Saved ...")
             return True
     except Exception as e:
-        logger.exception(e.__str__)
+        print(e)
+        # logger.exception(e.__cause__)
 
 
 

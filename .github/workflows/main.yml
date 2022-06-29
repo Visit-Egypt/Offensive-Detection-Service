@@ -67,11 +67,13 @@ jobs:
           MODEL2_URL: ${{ secrets.MODEL2_URL }}
         with:
           command: |
+            sudo rm -f $HOME/.env
+            sudo rm -rf $HOME/models
             echo "MODEL1_URL=${{ env.MODEL1_URL }}" >> $HOME/.env
             echo "MODEL2_URL=${{ env.MODEL2_URL }}" >> $HOME/.env
             sudo docker kill offensive-container
             sudo docker rm offensive-container
-            sudo docker run -d -p 80:80 --env-file $HOME/.env --name offensive-container visitegypt/offensive:latest
+            sudo docker run -d -p 80:80 -v $HOME/models:$HOME/code --env-file $HOME/.env --name offensive-container visitegypt/offensive:latest
           host: ${{ secrets.HOST }}
           user: ${{ secrets.HOST_USERNAME }}
           key: ${{ secrets.PRIVATE_KEY}}
